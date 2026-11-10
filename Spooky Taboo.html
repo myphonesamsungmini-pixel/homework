@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Spooky Taboo</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e8e2f5;--ink:#1f1a3a;--card:#f2e6c8;--chip:#e2cfa2;--acc:#c2570c;--track:#cbbfe3;--soft:#f6f3fc;--line:#cfc4e6;--bad:#b3243f;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17122b;--ink:#f1eaff;--card:#3a2f26;--chip:#54453a;--acc:#ff9440;--track:#3a2f5c;--soft:#241c40;--line:#43396b;--bad:#ff7d93}}
+:root[data-theme="dark"]{--bg:#17122b;--ink:#f1eaff;--card:#3a2f26;--chip:#54453a;--acc:#ff9440;--track:#3a2f5c;--soft:#241c40;--line:#43396b;--bad:#ff7d93}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Nunito,system-ui,sans-serif}
+main{max-width:520px;margin:0 auto;padding:16px 16px 40px}
+h1{font-family:Cinzel,Georgia,serif;font-weight:800;font-size:2.3rem;margin:4px 0 14px;line-height:1.1}
+.top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.seg{display:flex;gap:6px;flex:1}
+.seg button{flex:1;padding:10px 0;border-radius:12px;border:1px solid var(--line);background:var(--soft);color:var(--ink);font:inherit;font-weight:800;cursor:pointer}
+.seg button.on{border:2px solid var(--acc);color:var(--acc)}
+.bar{height:12px;background:var(--track);border-radius:9px;overflow:hidden;flex:1}
+.bar i{display:block;height:100%;width:100%;background:var(--acc);border-radius:9px;transition:width 1s linear}
+.num{font-weight:800;font-size:1.9rem;min-width:56px;text-align:right}
+.card{background:var(--card);border-radius:22px;padding:28px 18px;text-align:center;border:1px solid #b99f6a;box-shadow:inset 0 0 0 5px var(--card),inset 0 0 0 6px #b99f6a,0 6px 0 rgba(0,0,0,.25);margin:18px 0 22px;min-height:230px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.word{font-family:Cinzel,Georgia,serif;font-weight:800;font-size:2rem;line-height:1.2}
+.chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.chips span{background:var(--chip);border-radius:999px;padding:9px 16px;font-weight:800;font-size:1.05rem}
+.chips span:before{content:"✖";color:var(--bad);font-size:.85em;margin-right:8px}
+.extra{background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:12px;text-align:left;line-height:1.55}
+.extra[hidden]{display:none}
+.extra b{color:var(--acc)}
+.extra ul{margin:4px 0 0;padding-left:20px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.btn{padding:15px 8px;border-radius:14px;border:1px solid var(--line);background:var(--soft);color:var(--ink);font:inherit;font-weight:800;font-size:1rem;cursor:pointer}
+.btn.p{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn.p:disabled{opacity:.6}
+.full{grid-column:1/-1}
+</style></head>
+<body><main>
+<h1>Spooky Taboo</h1>
+<div class="top"><div class="seg" id="seg"><button data-s="60" class="on">60 s</button><button data-s="90">90 s</button><button data-s="120">120 s</button></div></div>
+<div class="top"><div class="bar"><i id="bar"></i></div><div class="num" id="num">60</div></div>
+<div class="card" id="card"></div>
+<div class="extra" id="ex" hidden></div>
+<div class="extra" id="ph" hidden></div>
+<div class="row">
+<button class="btn" id="bex">Example</button>
+<button class="btn" id="bph">Useful phrases</button>
+<button class="btn p" id="bst">Start</button>
+<button class="btn p" id="bnx">Next card ➜</button>
+</div>
+<script>
+const P={
+thing:["It’s something you…","You can find it…","It’s used for…"],
+adj:["It’s when something / someone is…","It’s the opposite of…","You can say it about…"],
+place:["It’s a place where…","You can find it…","People go there to…"],
+act:["It’s when you…","You do it when…","People do it to…"],
+phr:["You say it when…","It means…","It’s the opposite of…"]};
+const W=[
+{w:"a trap",t:"thing",no:["catch","escape","mouse","difficult"],e:"It’s something people make to stop an animal from running away. It closes when the animal touches it."},
+{w:"cursed",t:"adj",no:["curse","luck","evil","magic"],e:"You say this about a place or a thing when bad things keep happening because of a witch’s words."},
+{w:"a curse",t:"thing",no:["witch","magic","bad luck","harm"],e:"It’s some scary words that someone says to make terrible things happen to another person. You can read about it in fairy tales."},
+{w:"haunted",t:"adj",no:["ghost","house","scary","noise"],e:"It’s when people believe that spirits of dead people stay in a building, so you can’t feel calm there."},
+{w:"a graveyard",t:"place",no:["dead","church","buried","grave"],e:"It’s a place where people go to remember family members who are no longer alive. There are many stones with names on them."},
+{w:"a cellar",t:"place",no:["under","basement","potatoes","room"],e:"It’s a cold, dark place below a building. People keep wine and old things there."},
+{w:"a torch",t:"thing",no:["light","dark","flashlight","hand"],e:"It’s something you take with you at night or in a cave to see where you’re going. It works with batteries."},
+{w:"dress up",t:"act",no:["costume","party","clothes","wear"],e:"It’s when you put on special things, for example to look like a pirate or a witch."},
+{w:"shaped",t:"adj",no:["shape","heart","form","cookie"],e:"You use this word to say that something looks like a star, a circle or a square."},
+{w:"knock on the door",t:"act",no:["hand","enter","hit","wait"],e:"It’s what you do when you stand outside a room and want someone to open it. You make a sound with your fingers."},
+{w:"joyful",t:"adj",no:["happy","glad","smile","fun"],e:"It’s the opposite of sad. You feel like this when something wonderful happens."},
+{w:"a striped t-shirt",t:"thing",no:["lines","colours","zebra","wear"],e:"It’s something you put on your body. It has long narrow bands in two different shades, like a sailor’s top."},
+{w:"in the lesson",t:"phr",no:["class","teacher","school","study"],e:"You use this phrase to say what happened while you were learning something with other students, for example English or Maths."},
+{w:"I was late",t:"phr",no:["time","bus","arrive","clock"],e:"You say this to explain that you came after the moment when you should have come. You often say sorry when you say it."}];
+const $=i=>document.getElementById(i);
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+let d=shuf(W),i=0,secs=60,left=60,tm=null;
+function show(){const c=d[i];
+$("card").innerHTML=`<div class="word">${c.w}</div><div class="chips">${c.no.map(n=>`<span>${n}</span>`).join("")}</div>`;
+$("ex").hidden=true;$("ph").hidden=true}
+function reset(){clearInterval(tm);left=secs;$("num").textContent=left;$("bar").style.transition="none";$("bar").style.width="100%";$("bst").textContent="Start";$("bst").disabled=false}
+$("seg").onclick=e=>{const b=e.target.closest("button");if(!b)return;secs=+b.dataset.s;[...$("seg").children].forEach(x=>x.classList.toggle("on",x===b));reset()};
+$("bst").onclick=()=>{reset();$("bst").textContent="Running…";$("bst").disabled=true;
+setTimeout(()=>{$("bar").style.transition="width 1s linear"},20);
+tm=setInterval(()=>{left--;$("num").textContent=left;$("bar").style.width=(left/secs*100)+"%";
+if(left<=0){clearInterval(tm);$("num").textContent="0";$("bst").textContent="Time’s up!"}},1000)};
+$("bnx").onclick=()=>{i++;if(i>=d.length){d=shuf(W);i=0}show()};
+$("bex").onclick=()=>{$("ex").innerHTML=`<b>How to explain it:</b> ${d[i].e}`;$("ex").hidden=!$("ex").hidden};
+$("bph").onclick=()=>{$("ph").innerHTML=`<b>You can start with:</b><ul>${P[d[i].t].map(p=>`<li>${p}</li>`).join("")}<li>It’s someone who… / It’s like… but…</li></ul>`;$("ph").hidden=!$("ph").hidden};
+show();
+</script>
+</main></body></html>
