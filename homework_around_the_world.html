@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Homework · Around the World</title>
+<style>
+:root{--green:#3f7f63;--ink:#24352f;--soft:#6c7f76;--line:#dbe7df;--bg:#f6faf6;--ok:#e3f4e8;--okb:#79b890;--bad:#fdeaea;--badb:#e19a9a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:820px;margin:0 auto;padding:22px 16px 60px}
+h1{font-size:30px;margin:0 0 4px}.sub{color:var(--soft);margin:0 0 18px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.tab{border:1px solid var(--line);background:#fff;border-radius:50px;padding:9px 16px;font:inherit;cursor:pointer;color:var(--ink)}
+.tab.on{background:var(--green);color:#fff;border-color:var(--green)}
+.tab small{opacity:.8;margin-left:6px}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px;margin-bottom:16px}
+.label{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--soft);font-weight:600;margin-bottom:8px}
+.card h2{margin:0 0 10px;font-size:24px}
+.text p{margin:0;font-size:19px;line-height:1.7}
+.words{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.words span{background:#eef6f0;border-radius:50px;padding:5px 12px;font-size:15px}
+.words b{font-weight:600}.words i{color:var(--soft);font-style:normal}
+.q{padding:12px 0;border-top:1px solid var(--line)}.q:first-of-type{border-top:0}
+.q p{margin:0 0 9px}
+.row{display:flex;flex-wrap:wrap;gap:9px}
+.btn{border:1px solid var(--line);background:#fff;border-radius:14px;padding:9px 18px;font:inherit;cursor:pointer;color:var(--ink)}
+.btn:hover{border-color:#a9c7b6}
+.btn.right{background:var(--ok);border-color:var(--okb)}
+.btn.wrong{background:var(--bad);border-color:var(--badb)}
+.btn:disabled{cursor:default}
+.fb{margin-top:7px;font-size:15px;color:var(--soft)}
+.gap{display:inline-block;min-width:90px;border-bottom:2px solid var(--green);text-align:center;font-weight:600;color:var(--green)}
+.score{font-weight:600;color:var(--green)}
+textarea{width:100%;min-height:120px;font:inherit;padding:12px;border:1px solid var(--line);border-radius:14px;resize:vertical}
+.starters div{margin:2px 0}.starters b{color:var(--green)}
+.check label{display:flex;gap:10px;align-items:flex-start;margin:6px 0;cursor:pointer}
+.check input{margin-top:7px;width:18px;height:18px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chips span{background:#eef6f0;border-radius:50px;padding:5px 13px;font-size:16px}
+@media(max-width:520px){body{font-size:17px}.card{padding:16px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🌍 Around the World</h1>
+  <p class="sub">Read a short text. Then do the tasks. Look for adverbs of manner.</p>
+  <div class="tabs" id="tabs"></div>
+  <div id="stage"></div>
+</div>
+<script>
+const texts=[
+{flag:'🇯🇵',country:'Japan',title:'Quiet trains, no tips',
+ text:'In Japan, people do not usually leave a tip in restaurants. They think good service is normal. When people enter a house, they take off their shoes. On the train, people sit quietly and talk very little. In a noodle restaurant, many people eat noodles loudly, and this is normal.',
+ words:[['tip','чаевые'],['take off','снимать'],['noodles','лапша'],['service','обслуживание']],
+ tf:[['Tourists must leave a big tip in Japan.',false,'No. People do not usually leave a tip.'],
+     ['People take off their shoes in a house.',true,'Yes, they do.'],
+     ['Eating noodles loudly is rude in a noodle restaurant.',false,'No. It is normal there.']],
+ gaps:[['On the train, people sit ___.','quietly',['clearly','seriously']],
+       ['Many people eat noodles ___.','loudly',['clearly','seriously']]]},
+{flag:'🇺🇸',country:'the USA',title:'Tips and big portions',
+ text:'In the USA, people usually leave a tip in restaurants. The tip is often 15% to 20% of the bill. Waiters work quickly in busy restaurants, and they often earn a small salary, so tips are important. Portions are big, so many people take food home in a box. People speak politely to shop workers, and they say “How are you?” to strangers, but they do not wait for a long answer.',
+ words:[['bill','счёт'],['salary','зарплата'],['portion','порция'],['stranger','незнакомец']],
+ tf:[['A tip is usually 15% to 20% of the bill.',true,'Yes, it is.'],
+     ['Portions in the USA are small.',false,'No. Portions are big.'],
+     ['“How are you?” needs a long answer.',false,'No. It is usually just a greeting.']],
+ gaps:[['Waiters work ___ in busy restaurants.','quickly',['clearly','heavily']],
+       ['People speak ___ to shop workers.','politely',['heavily','safely']]]},
+{flag:'🇮🇹',country:'Italy',title:'Coffee and late dinners',
+ text:'In Italy, people usually drink cappuccino in the morning. After lunch, they drink a small espresso. Coffee at the bar is cheap, and people often drink it quickly. Many Italians have dinner late, at 8 or 9 p.m. They talk loudly and happily at the table.',
+ words:[['cheap','дешёвый'],['bar','бар (кафе)'],['late','поздно'],['table','стол']],
+ tf:[['Italians drink cappuccino in the morning.',true,'Yes, they usually do.'],
+     ['After lunch, Italians drink a big cappuccino.',false,'No. They drink a small espresso.'],
+     ['Many Italians have dinner at 5 p.m.',false,'No. They have dinner late, at 8 or 9 p.m.']],
+ gaps:[['People often drink coffee ___ at the bar.','quickly',['clearly','safely']],
+       ['Italians talk ___ at the table.','loudly',['safely','heavily']]]},
+{flag:'🇳🇱',country:'the Netherlands',title:'Bikes and honest words',
+ text:'In the Netherlands, many people ride bikes every day, even in the rain. Children go to school safely because there are special bike roads. Dutch people speak directly and honestly, and this is not rude for them. A good bike is not cheap, so some people spend a lot of money on it.',
+ words:[['ride a bike','ехать на велосипеде'],['rude','грубый'],['spend money','тратить деньги'],['road','дорога']],
+ tf:[['People in the Netherlands ride bikes only in good weather.',false,'No. They ride even in the rain.'],
+     ['Dutch people think direct speech is rude.',false,'No. It is not rude for them.'],
+     ['Some people spend a lot of money on a good bike.',true,'Yes, a good bike is not cheap.']],
+ gaps:[['Children go to school ___.','safely',['loudly','heavily']],
+       ['Dutch people speak ___.','directly',['heavily','safely']]]}
+];
+const state=texts.map(()=>({tf:{},gap:{}}));
+let cur=0;
+const $=id=>document.getElementById(id);
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const optionOrder=texts.map(t=>t.gaps.map(g=>shuffle([g[1],...g[2]])));
+function score(i){const s=state[i];return [...Object.values(s.tf),...Object.values(s.gap)].filter(v=>v==='right').length}
+function tabs(){$('tabs').innerHTML=texts.map((t,i)=>`<button class="tab ${cur===i?'on':''}" data-t="${i}">${t.flag} ${t.country}<small>${score(i)}/5</small></button>`).join('')+`<button class="tab ${cur===texts.length?'on':''}" data-t="${texts.length}">✍️ Your turn</button>`;
+document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{cur=+b.dataset.t;render()})}
+function render(){tabs();cur<texts.length?readingView(cur):yourTurn();window.scrollTo({top:0})}
+function readingView(i){const t=texts[i];
+$('stage').innerHTML=`<div class="card text"><div class="label">1 · Read</div><h2>${t.flag} ${t.title}</h2><p>${t.text}</p>
+<div class="words">${t.words.map(w=>`<span><b>${w[0]}</b> <i>${w[1]}</i></span>`).join('')}</div></div>
+<div class="card"><div class="label">2 · True or false?</div>${t.tf.map((q,k)=>`<div class="q"><p>${q[0]}</p><div class="row"><button class="btn" data-tf="${k}" data-v="true">True</button><button class="btn" data-tf="${k}" data-v="false">False</button></div><div class="fb" id="tf${k}"></div></div>`).join('')}</div>
+<div class="card"><div class="label">3 · Choose the adverb</div><p class="fb" style="margin-top:0">Two adverbs do not fit. Choose the one that fits.</p>${t.gaps.map((g,k)=>`<div class="q"><p>${g[0].replace('___','<span class="gap" id="gap'+k+'">&nbsp;</span>')}</p><div class="row">${optionOrder[i][k].map(o=>`<button class="btn" data-gap="${k}" data-o="${o}">${o}</button>`).join('')}</div></div>`).join('')}</div>
+<div class="card"><span class="score" id="sc"></span> <span class="fb">Next: choose another country above.</span></div>`;
+restore(i);
+document.querySelectorAll('[data-tf]').forEach(b=>b.onclick=()=>{const k=+b.dataset.tf,ok=(b.dataset.v==='true')===t.tf[k][1];answerTF(i,k,ok,b)});
+document.querySelectorAll('[data-gap]').forEach(b=>b.onclick=()=>{const k=+b.dataset.gap;answerGap(i,k,b.dataset.o===t.gaps[k][1],b)});}
+function answerTF(i,k,ok,b){const s=state[i];if(s.tf[k]==='right')return;if(!(k in s.tf))s.tf[k]=ok?'right':'wrong';
+b.classList.add(ok?'right':'wrong');if(ok){document.querySelectorAll(`[data-tf="${k}"]`).forEach(x=>x.disabled=true);$('tf'+k).textContent='✓ '+texts[i].tf[k][2]}else $('tf'+k).textContent='Try again.';upd(i)}
+function answerGap(i,k,ok,b){const s=state[i];if(s.gap[k]==='right')return;if(!(k in s.gap))s.gap[k]=ok?'right':'wrong';
+b.classList.add(ok?'right':'wrong');if(ok){document.querySelectorAll(`[data-gap="${k}"]`).forEach(x=>x.disabled=true);$('gap'+k).textContent=texts[i].gaps[k][1]}upd(i)}
+function restore(i){const s=state[i],t=texts[i];
+Object.keys(s.tf).forEach(k=>{if(s.tf[k]==='right'){const v=String(t.tf[k][1]);document.querySelectorAll(`[data-tf="${k}"]`).forEach(x=>{x.disabled=true;if(x.dataset.v===v)x.classList.add('right')});$('tf'+k).textContent='✓ '+t.tf[k][2]}});
+Object.keys(s.gap).forEach(k=>{if(s.gap[k]==='right'){document.querySelectorAll(`[data-gap="${k}"]`).forEach(x=>{x.disabled=true;if(x.dataset.o===t.gaps[k][1])x.classList.add('right')});$('gap'+k).textContent=t.gaps[k][1]}});upd(i)}
+function upd(i){const el=$('sc');if(el)el.textContent=`Score: ${score(i)} / 5`;tabs()}
+function yourTurn(){
+$('stage').innerHTML=`<div class="card"><div class="label">Your turn</div><h2>✍️ A surprising habit</h2>
+<p>Choose a country (your own or another). Write or say <b>3 sentences</b> about habits that can surprise tourists.</p>
+<div class="label" style="margin-top:16px">Sentence starters</div><div class="starters"><div><b>In Japan,</b> people ...</div><div><b>In my country,</b> we ...</div><div><b>Tourists may be surprised because</b> ...</div></div>
+<div class="label" style="margin-top:16px">Adverbs of manner</div><div class="chips">${['quietly','loudly','quickly','slowly','politely','carefully','safely','happily','clearly','easily'].map(w=>`<span>${w}</span>`).join('')}</div>
+<div class="label" style="margin-top:16px">Your sentences</div><textarea placeholder="Write your three sentences here…"></textarea></div>
+<div class="card check"><div class="label">Check yourself</div>
+<label><input type="checkbox"> I wrote 3 sentences.</label>
+<label><input type="checkbox"> I used an adverb of manner in 2 sentences.</label>
+<label><input type="checkbox"> The adverb is at the end of the sentence.</label>
+<label><input type="checkbox"> I can say my sentences aloud.</label></div>`}
+render();
+</script>
+</body>
+</html>
